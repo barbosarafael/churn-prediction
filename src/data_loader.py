@@ -1,18 +1,24 @@
 from utils import load_kaggle_credentials
 from kaggle.api.kaggle_api_extended import KaggleApi
 
-def download_kaggle_dataset():
+def download_kaggle_dataset(dataset: str = 'muhammadshahidazeem/customer-churn-dataset', download_path: str = 'data/raw/'):
     
     """
-    Baixa um dataset do Kaggle e salva em uma pasta local.
+    Download a dataset from Kaggle.
 
-    Args:
-        dataset (str): Nome do dataset a ser baixado.
-        download_path (str, optional): Pasta local para salvar os arquivos do dataset. Defaults to 'data/raw/'.
+    Parameters
+    ----------
+    dataset : str
+        The name of the dataset to download. The default is
+        'muhammadshahidazeem/customer-churn-dataset'.
+    download_path : str
+        The path where the dataset will be downloaded. The default is
+        'data/raw/'.
 
-    Returns:
-        None
-    """
+    Returns
+    -------
+    None
+    """    
     
     # 1. Load Kaggle credentials
     
@@ -25,12 +31,10 @@ def download_kaggle_dataset():
     
     # 3. Download dataset 
     
-    dataset = 'muhammadshahidazeem/customer-churn-dataset'
-    download_path = 'data/raw/'
-    
     print(f'Baixando dataset: {dataset}...')
     api.dataset_download_files(dataset, path = download_path, unzip = True)
     print(f'Download concluído! Arquivos salvos em: {download_path}')
     
 if __name__ == '__main__':
+    
     download_kaggle_dataset()
