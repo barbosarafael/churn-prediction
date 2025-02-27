@@ -1,7 +1,7 @@
 from utils import load_kaggle_credentials
 from kaggle.api.kaggle_api_extended import KaggleApi
 
-def download_kaggle_dataset(dataset: str = 'muhammadshahidazeem/customer-churn-dataset', download_path: str = 'data/raw/'):
+def download_kaggle_dataset(dataset: str = 'blastchar/telco-customer-churn', download_path: str = 'data/raw/'):
     
     """
     Download a dataset from Kaggle.

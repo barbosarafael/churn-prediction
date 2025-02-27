@@ -2,6 +2,7 @@
 
 from dotenv import load_dotenv
 import os
+from sklearn.model_selection import train_test_split
 
 def load_kaggle_credentials():
     
@@ -20,3 +21,5 @@ def load_kaggle_credentials():
     
     os.environ["KAGGLE_USERNAME"] = os.getenv("KAGGLE_USERNAME")
     os.environ["KAGGLE_KEY"] = os.getenv("KAGGLE_KEY")
+    
+

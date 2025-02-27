@@ -8,7 +8,7 @@ Machine learning project to practice customer churn analysis and explore topics 
 
 ### 1. Download raw data
 
-This [Kaggle](https://www.kaggle.com/datasets/muhammadshahidazeem/customer-churn-dataset?select=customer_churn_dataset-training-master.csv) Customer Churn Dataset contains data to predict customer's retention. Follow the instructions:
+This [Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) Customer Churn Dataset contains data to predict customer's retention. Follow the instructions:
 
 
 1. Install the required libraries by running `pip install -r requirements.txt`
@@ -17,3 +17,27 @@ This [Kaggle](https://www.kaggle.com/datasets/muhammadshahidazeem/customer-churn
 4. Two datasets will be downloaded and saved in the `data/raw/` directory
    1. train.csv
    2. test.csv
+
+## TODOs
+
+- [ ] Data exploration
+- [ ] Feature engineering
+- [ ] Model training
+- [ ] Model evaluation
+- [ ] Model deployment -> API + Docker + AWS
+- [ ] Model monitoring
+- [ ] Deployment monitoring
+
+## Ideas
+
+
+- Transform variables
+  - Float to INT
+    - Customer ID
+    - Age
+    - Tenure
+    - Usage Frequency
+    - Support calls
+    - Payment delay
+    - Last interaction
+    - Churn
