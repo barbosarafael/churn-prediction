@@ -20,7 +20,7 @@ This [Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) Cu
 
 ## TODOs
 
-- [ ] Data exploration
+- [x] "Data exploration"
 - [ ] Feature engineering
 - [ ] Model training
 - [ ] Model evaluation
@@ -30,14 +30,17 @@ This [Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) Cu
 
 ## Ideas
 
-
-- Transform variables
-  - Float to INT
-    - Customer ID
-    - Age
-    - Tenure
-    - Usage Frequency
-    - Support calls
-    - Payment delay
-    - Last interaction
-    - Churn
+- Variables to use in model: 
+  - Gender
+  - Partner
+  - Dependents
+  - InternetService
+  - OnlineSecurity
+  - OnlineBackup
+  - DeviceProtection
+  - TechSupport
+  - StreamingTV
+  - StreamingMovies
+  - Contract
+  - PaymentMethod
+    - OnlineSecurity to StreamingMovies uses a way that the user can easily select all these services. And there should be an option where he has NoInternetService, uncheck it every time
