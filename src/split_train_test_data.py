@@ -5,7 +5,7 @@ import os
 from typing import Tuple
 
 def split_data_frame(
-    data_frame: pd.DataFrame, test_ratio: float = 0.2, random_seed: int = 42,
+    data_frame: pd.DataFrame, test_ratio: float = 0.1, random_seed: int = 42,
     output_directory: str = 'data/processed/'
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
