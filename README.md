@@ -21,7 +21,7 @@ This [Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) Cu
 ## TODOs
 
 - [x] "Data exploration"
-- [ ] Feature engineering
+- [x] Feature engineering
 - [ ] Model training
 - [ ] Model evaluation
 - [ ] Model deployment -> API + Docker + AWS
