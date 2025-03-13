@@ -24,6 +24,7 @@ This [Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) Cu
 - [x] Feature engineering
 - [ ] Model training
 - [ ] Model evaluation
+- [ ] Model calibration
 - [ ] Model deployment -> API + Docker + AWS
 - [ ] Model monitoring
 - [ ] Deployment monitoring
