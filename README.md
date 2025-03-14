@@ -56,6 +56,7 @@ To train the models:
 
 3. Click in the experiment "Churn Prediction Experiment v11"
 4. To see the best model, sort by f1-metric and click in the best model
+5. You will see the metrics of the best model
 
 ## TODOs
 
