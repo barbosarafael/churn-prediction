@@ -2,11 +2,7 @@
 
 import pandas as pd
 import numpy as np
-from sklearn.utils import class_weight
-from sklearn.metrics import confusion_matrix, auc, roc_curve, precision_recall_curve
-import matplotlib.pyplot as plt
-import seaborn as sns
-import mlflow
+from sklearn.model_selection import train_test_split
 
 
 def clean_total_charges(df: pd.DataFrame, col_total_charges = 'TotalCharges') -> pd.DataFrame:
@@ -42,3 +38,7 @@ def clean_all_data(df: pd.DataFrame) -> pd.DataFrame:
     df = mapping_churn_col(df = df)
     
     return df
+
+def load_and_clean_data(filepath):
+    df = pd.read_csv(filepath)
+    return clean_all_data(df)
