@@ -64,6 +64,8 @@ To train the models:
 - [x] Model training
 - [ ] Model evaluation
 - [ ] Model calibration
+- [ ] Translate 100% to english
+- [ ] Documentation all functions
 - [ ] Model deployment -> API + Docker + AWS
 - [ ] Model monitoring
 - [ ] Deployment monitoring
