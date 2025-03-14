@@ -6,14 +6,12 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import numpy as np
 from sklearn.utils import class_weight
-from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix, f1_score, auc, roc_curve, precision_recall_curve
+from sklearn.metrics import confusion_matrix, auc, roc_curve, precision_recall_curve
 import matplotlib.pyplot as plt
 import seaborn as sns
 import mlflow
 
 def load_kaggle_credentials():
-    
-    # 1. Load environment variables
     
     """
     Carrega as credenciais do Kaggle da variável de ambiente local.
@@ -23,8 +21,6 @@ def load_kaggle_credentials():
     """
     
     load_dotenv()
-    
-    # 2. Define credentials
     
     os.environ["KAGGLE_USERNAME"] = os.getenv("KAGGLE_USERNAME")
     os.environ["KAGGLE_KEY"] = os.getenv("KAGGLE_KEY")
@@ -131,3 +127,9 @@ def plot_and_log_confusion_matrix(y_true, y_pred, run_name="confusion_matrix"):
     plt.savefig(temp_file)
     plt.close()
     mlflow.log_artifact(temp_file, artifact_path=run_name)
+    
+def find_optimal_threshold(y_true, y_pred_proba):
+    precision, recall, thresholds = precision_recall_curve(y_true, y_pred_proba)
+    f1_scores = 2 * (precision * recall) / (precision + recall)
+    optimal_threshold = thresholds[np.argmax(f1_scores)]
+    return optimal_threshold    

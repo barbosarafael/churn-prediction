@@ -8,10 +8,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
-from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix, f1_score, auc, roc_curve, precision_recall_curve, recall_score, accuracy_score, precision_score
+from sklearn.metrics import roc_auc_score, confusion_matrix, f1_score, auc, roc_curve, precision_recall_curve, recall_score, accuracy_score, precision_score
 from sklearn.impute import SimpleImputer
 from sklearn.utils import class_weight
-from utils import clean_all_data, calculate_class_weights, calcular_ks_score, calcular_auc_pr, plot_and_log_confusion_matrix
+from utils import clean_all_data, calculate_class_weights, calcular_ks_score, calcular_auc_pr, plot_and_log_confusion_matrix, find_optimal_threshold
 import mlflow
 import mlflow.sklearn
 import numpy as np
@@ -171,12 +171,6 @@ mlflow.set_experiment("Churn Prediction Experiment v10")
 
 n_iter = 50
 
-def find_optimal_threshold(y_true, y_pred_proba):
-    precision, recall, thresholds = precision_recall_curve(y_true, y_pred_proba)
-    f1_scores = 2 * (precision * recall) / (precision + recall)
-    optimal_threshold = thresholds[np.argmax(f1_scores)]
-    return optimal_threshold
-
 # Execute o Random Search e registre no MLflow
 def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test, y_test, n_iter=n_iter):
     model_name = param_grid['classifier'][0].__class__.__name__
@@ -216,9 +210,9 @@ def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test,
             
             plot_and_log_confusion_matrix(y_test, y_test_pred)
 
-
             # Log dos parâmetros e métricas no MLflow
             mlflow.log_params(params)
+            mlflow.log_metric("optimal_threshold", optimal_threshold)
             mlflow.log_metric("test_auc", test_auc)
             mlflow.log_metric("test_recall", test_recall)
             mlflow.log_metric("test_precision", test_precision)
