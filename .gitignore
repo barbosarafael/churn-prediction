@@ -177,3 +177,6 @@ data/
 # MLFlow runs
 
 mlruns/
+models/*/
+models/*
+!models/placeholder
