@@ -5,9 +5,9 @@ data:
   processed_path: 'data/processed/'
 mlflow:
   tracking_uri: 'mlruns'
-  experiment_name: 'Churn Prediction Experiment v10'
+  experiment_name: 'Churn Prediction Experiment v11'
 modelling:
-  n_iter: 5
+  n_iter: 20
   features:
     - 'gender'
     - 'Partner'
