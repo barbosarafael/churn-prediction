@@ -8,7 +8,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
-from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix, f1_score, auc, roc_curve, precision_recall_curve, recall_score, accuracy_score
+from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix, f1_score, auc, roc_curve, precision_recall_curve, recall_score, accuracy_score, precision_score
 from sklearn.impute import SimpleImputer
 from sklearn.utils import class_weight
 from utils import clean_all_data, calculate_class_weights, calcular_ks_score, calcular_auc_pr, plot_and_log_confusion_matrix
@@ -203,6 +203,9 @@ def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test,
             
             train_recall = recall_score(y_train, y_train_pred)
             test_recall = recall_score(y_test, y_test_pred)
+            
+            train_precision = precision_score(y_train, y_train_pred)
+            test_precision = precision_score(y_test, y_test_pred)
 
             train_f1 = f1_score(y_train, y_train_pred)
             test_f1 = f1_score(y_test, y_test_pred)
@@ -228,6 +231,8 @@ def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test,
             mlflow.log_metric("test_auc", test_auc)
             mlflow.log_metric("train_recall", train_recall)
             mlflow.log_metric("test_recall", test_recall)
+            mlflow.log_metric("train_precision", train_precision)
+            mlflow.log_metric("test_precision", test_precision)
             mlflow.log_metric("train_f1", train_f1)
             mlflow.log_metric("test_f1", test_f1)
             mlflow.log_metric("train_ks", train_ks)
