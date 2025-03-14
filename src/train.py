@@ -18,6 +18,8 @@ EXPERIMENT_NAME = config['mlflow']['experiment_name']
 N_ITER = config['modelling']['n_iter']
 FEATURES = config['modelling']['features']
 TARGET = config['modelling']['target']
+METRIC_NAME = config['modelling']['metric_name']
+MODEL_PATH = config['modelling']['model_path']
 
 # Função principal
 def main():
@@ -46,6 +48,13 @@ def main():
     
     for param_grid in param_grids:
         run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test, y_test, N_ITER)
+        
+
+    # Save the best model
+
+    load_and_save_best_model(experiment_name = EXPERIMENT_NAME,
+                            metric_name = METRIC_NAME, 
+                            save_dir = MODEL_PATH)
 
 if __name__ == "__main__":
     main()

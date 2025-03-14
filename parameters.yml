@@ -5,9 +5,9 @@ data:
   processed_path: 'data/processed/'
 mlflow:
   tracking_uri: 'mlruns'
-  experiment_name: 'Churn Prediction Experiment v11'
+  experiment_name: 'Churn Prediction Experiment v99'
 modelling:
-  n_iter: 20
+  n_iter: 50
   features:
     - 'gender'
     - 'Partner'
@@ -26,3 +26,5 @@ modelling:
     - 'TotalCharges'
     - 'QtdProducts'
   target: 'Churn'
+  metric_name: 'test_f1'
+  model_path: 'models/'

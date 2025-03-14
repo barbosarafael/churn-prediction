@@ -1,5 +1,7 @@
 # 0. Import libraries
 
+import os
+import json
 import numpy as np
 from sklearn.utils import class_weight
 from sklearn.metrics import confusion_matrix, auc, roc_curve, precision_recall_curve
@@ -7,6 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import mlflow
 import mlflow.sklearn
+from mlflow.tracking import MlflowClient
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, OrdinalEncoder, MinMaxScaler, RobustScaler
 from sklearn.pipeline import Pipeline
 from category_encoders import *
@@ -18,6 +21,7 @@ from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split, ParameterSampler
 from sklearn.metrics import roc_auc_score, confusion_matrix, f1_score, recall_score, accuracy_score, precision_score
 from sklearn.impute import SimpleImputer
+from datetime import datetime
 
 
 def calculate_class_weights(y_treino):
@@ -250,3 +254,36 @@ def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test,
 
             # Salve o modelo (opcional)
             mlflow.sklearn.log_model(pipeline, "model")
+            
+def load_and_save_best_model(experiment_name, metric_name, save_dir):
+    
+    os.makedirs(save_dir, exist_ok=True)
+
+    client = MlflowClient()
+    experiment = client.get_experiment_by_name(experiment_name)
+    runs = client.search_runs(experiment.experiment_id, order_by=[f"metrics.{metric_name} DESC"])
+    best_run = runs[0]
+    best_model = mlflow.sklearn.load_model(f"runs:/{best_run.info.run_id}/model")
+    
+    print(f"Melhor modelo: {best_model}")
+    print(f"Melhor run: {best_run}")
+    
+    # Salva o modelo em disco
+    model_path = os.path.join(save_dir, f"best_model_{best_run.info.run_id}")
+    mlflow.sklearn.save_model(best_model, model_path)
+
+    # Salva metadados da execução
+    metadata = {
+        "run_id": best_run.info.run_id,
+        "experiment_name": experiment_name,
+        "metric_name": metric_name,
+        "metric_value": best_run.data.metrics[metric_name],
+        "parameters": best_run.data.params,
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    metadata_path = os.path.join(model_path, f"metadata_{best_run.info.run_id}.json")
+
+    with open(metadata_path, "w") as f:
+            json.dump(metadata, f, indent=4)
+            
+    return best_model, best_run
