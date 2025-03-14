@@ -153,7 +153,7 @@ param_grids = [
     {
         'classifier': [XGBClassifier(eval_metric = 'auc')],
         'classifier__n_estimators': [50, 100, 200],
-        'classifier__learning_rate': [0.01, 0.1, 0.2],
+        'classifier__learning_rate': [0.01, 0.05, 0.1, 0.2],
         'classifier__max_depth': [3, 5, 7],
         'classifier__subsample': [0.8, 1.0],
         'classifier__colsample_bytree': [0.8, 1.0],
@@ -216,10 +216,10 @@ def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test,
             train_accuracy = accuracy_score(y_train, y_train_pred)
             test_accuracy = accuracy_score(y_test, y_test_pred)
             
-            cm = confusion_matrix(y_train, y_train_pred)
+            cm = confusion_matrix(y_test, y_test_pred)
             tn, fp, fn, tp = cm.ravel()
             
-            plot_and_log_confusion_matrix(y_train, y_train_pred)
+            plot_and_log_confusion_matrix(y_test, y_test_pred)
 
 
             # Log dos parâmetros e métricas no MLflow
