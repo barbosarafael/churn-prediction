@@ -1,20 +1,19 @@
 # Import libraries 
 
 import pandas as pd
-from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV, ParameterSampler
+from sklearn.model_selection import train_test_split, ParameterSampler
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, OrdinalEncoder, MinMaxScaler, RobustScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
-from sklearn.metrics import roc_auc_score, confusion_matrix, f1_score, auc, roc_curve, precision_recall_curve, recall_score, accuracy_score, precision_score
+from sklearn.metrics import roc_auc_score, confusion_matrix, f1_score, recall_score, accuracy_score, precision_score
 from sklearn.impute import SimpleImputer
-from sklearn.utils import class_weight
-from utils import clean_all_data, calculate_class_weights, calcular_ks_score, calcular_auc_pr, plot_and_log_confusion_matrix, find_optimal_threshold
+from utils_clean_data import clean_all_data
+from utils_modelling import *
 import mlflow
 import mlflow.sklearn
-import numpy as np
 from category_encoders import *
 
 
@@ -169,7 +168,7 @@ param_grids = [
 mlflow.set_tracking_uri('../mlruns')  # Altere para o caminho desejado
 mlflow.set_experiment("Churn Prediction Experiment v10")
 
-n_iter = 50
+n_iter = 5
 
 # Execute o Random Search e registre no MLflow
 def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test, y_test, n_iter=n_iter):
