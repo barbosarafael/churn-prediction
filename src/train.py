@@ -171,6 +171,12 @@ mlflow.set_experiment("Churn Prediction Experiment v10")
 
 n_iter = 50
 
+def find_optimal_threshold(y_true, y_pred_proba):
+    precision, recall, thresholds = precision_recall_curve(y_true, y_pred_proba)
+    f1_scores = 2 * (precision * recall) / (precision + recall)
+    optimal_threshold = thresholds[np.argmax(f1_scores)]
+    return optimal_threshold
+
 # Execute o Random Search e registre no MLflow
 def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test, y_test, n_iter=n_iter):
     model_name = param_grid['classifier'][0].__class__.__name__
@@ -191,32 +197,18 @@ def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test,
             pipeline.fit(X_train, y_train)
 
             # Avalie o modelo no conjunto de treino e teste
-            y_train_pred_proba = pipeline.predict_proba(X_train)[:, 1]
             y_test_pred_proba = pipeline.predict_proba(X_test)[:, 1]
             
-            y_train_pred = pipeline.predict(X_train)
-            y_test_pred = pipeline.predict(X_test)
+            optimal_threshold = find_optimal_threshold(y_test, y_test_pred_proba)
+            y_test_pred = (y_test_pred_proba >= optimal_threshold).astype(int)
 
             # Calcule as métricas
-            train_auc = roc_auc_score(y_train, y_train_pred_proba)
             test_auc = roc_auc_score(y_test, y_test_pred_proba)
-            
-            train_recall = recall_score(y_train, y_train_pred)
             test_recall = recall_score(y_test, y_test_pred)
-            
-            train_precision = precision_score(y_train, y_train_pred)
             test_precision = precision_score(y_test, y_test_pred)
-
-            train_f1 = f1_score(y_train, y_train_pred)
             test_f1 = f1_score(y_test, y_test_pred)
-
-            train_ks = calcular_ks_score(y_train, y_train_pred_proba)
             test_ks = calcular_ks_score(y_test, y_test_pred_proba)
-
-            train_auc_pr = calcular_auc_pr(y_train, y_train_pred_proba)
             test_auc_pr = calcular_auc_pr(y_test, y_test_pred_proba)
-            
-            train_accuracy = accuracy_score(y_train, y_train_pred)
             test_accuracy = accuracy_score(y_test, y_test_pred)
             
             cm = confusion_matrix(y_test, y_test_pred)
@@ -227,19 +219,12 @@ def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test,
 
             # Log dos parâmetros e métricas no MLflow
             mlflow.log_params(params)
-            mlflow.log_metric("train_auc", train_auc)
             mlflow.log_metric("test_auc", test_auc)
-            mlflow.log_metric("train_recall", train_recall)
             mlflow.log_metric("test_recall", test_recall)
-            mlflow.log_metric("train_precision", train_precision)
             mlflow.log_metric("test_precision", test_precision)
-            mlflow.log_metric("train_f1", train_f1)
             mlflow.log_metric("test_f1", test_f1)
-            mlflow.log_metric("train_ks", train_ks)
             mlflow.log_metric("test_ks", test_ks)
-            mlflow.log_metric("train_auc_pr", train_auc_pr)
             mlflow.log_metric("test_auc_pr", test_auc_pr)
-            mlflow.log_metric("train_accuracy", train_accuracy)
             mlflow.log_metric("test_accuracy", test_accuracy)
             mlflow.log_metric("true_negatives", tn)
             mlflow.log_metric("false_positives", fp)
