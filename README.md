@@ -47,23 +47,24 @@ In `src/utils_modelling.py` you can find the functions and change the parameters
 - `get_encoders`: dictionary of encoders. 
 - `get_models_and_param_grids`: dictionary of models and parameter grids
 
-To train the models:
+To train the models, run the script `python src/train.py`. You will see the models running like "**Combinação 19/20 para XGBClassifier**"
+- The best model will be saved in the `models/` directory
 
-1. Run the script `python src/train.py`. You will see the models running like "**Combinação 19/20 para XGBClassifier**"
-2. In your cmd/bash run `mlflow ui` to open MLFlow UI. And open `http://127.0.0.1:5000` in your browser. You can see all the experiments and metrics, as shown in the image.
+
+### 5. Model evaluation 
+
+1. After training model, automatically you will see the metrics of the best model 
+2. If you want to see detailed results by model, run `mlflow ui` to open MLFlow UI. Open `http://127.0.0.1:5000` in your browser
+3. Click in the experiment "Churn Prediction Experiment v99" and explore the results, as shown in the image below
 
 ![alt text](images/image.png)
-
-3. Click in the experiment "Churn Prediction Experiment v11"
-4. To see the best model, sort by f1-metric and click in the best model
-5. You will see the metrics of the best model
 
 ## TODOs
 
 - [x] "Data exploration"
 - [x] Feature engineering
 - [x] Model training
-- [ ] Model evaluation
+- [x] Model evaluation
 - [ ] Model calibration
 - [ ] Translate 100% to english
 - [ ] Documentation all functions
