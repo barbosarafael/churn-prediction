@@ -87,7 +87,6 @@ def plot_and_log_confusion_matrix(y_true, y_pred, run_name="confusion_matrix"):
     plt.ylabel('Verdadeiro')
     plt.title('Matriz de Confusão')
     temp_file = "confusion_matrix.png"
-    plt.savefig(temp_file)
     plt.close()
     mlflow.log_artifact(temp_file, artifact_path=run_name)
     
