@@ -28,3 +28,4 @@ modelling:
   target: 'Churn'
   metric_name: 'test_f1'
   model_path: 'models/'
+  calibrated_model_path: 'calibrated_models/'
