@@ -265,25 +265,27 @@ def load_and_save_best_model(experiment_name, metric_name, save_dir):
     best_run = runs[0]
     best_model = mlflow.sklearn.load_model(f"runs:/{best_run.info.run_id}/model")
     
-    print(f"Melhor modelo: {best_model}")
-    print(f"Melhor run: {best_run}")
+    print(f"\nMelhor modelo: {best_model.named_steps['classifier']}")
+    print(f"\nEncoders das variáveis numéricas: {best_model.named_steps['preprocessor'].named_transformers_['num']}")
+    print(f"\nEncoders das variáveis categóricas: {best_model.named_steps['preprocessor'].named_transformers_['cat'].__class__.__name__}")
+    print(f"\nMétricas da melhor run: {best_run.data.metrics}\n")
     
     # Salva o modelo em disco
-    model_path = os.path.join(save_dir, f"best_model_{best_run.info.run_id}")
-    mlflow.sklearn.save_model(best_model, model_path)
+    # model_path = os.path.join(save_dir, f"best_model_{best_run.info.run_id}")
+    # mlflow.sklearn.save_model(best_model, model_path)
 
-    # Salva metadados da execução
-    metadata = {
-        "run_id": best_run.info.run_id,
-        "experiment_name": experiment_name,
-        "metric_name": metric_name,
-        "metric_value": best_run.data.metrics[metric_name],
-        "parameters": best_run.data.params,
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    }
-    metadata_path = os.path.join(model_path, f"metadata_{best_run.info.run_id}.json")
+    # # Salva metadados da execução
+    # metadata = {
+    #     "run_id": best_run.info.run_id,
+    #     "experiment_name": experiment_name,
+    #     "metric_name": metric_name,
+    #     "metric_value": best_run.data.metrics[metric_name],
+    #     "parameters": best_run.data.params,
+    #     "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # }
+    # metadata_path = os.path.join(model_path, f"metadata_{best_run.info.run_id}.json")
 
-    with open(metadata_path, "w") as f:
-            json.dump(metadata, f, indent=4)
+    # with open(metadata_path, "w") as f:
+    #         json.dump(metadata, f, indent=4)
             
     return best_model, best_run
