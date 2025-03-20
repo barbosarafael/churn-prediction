@@ -36,7 +36,7 @@ def main():
 
     # Load model 
 
-    id_model = 'f94e15977cde4f1997b25afa376970b4'
+    id_model = '...'
     best_model_path = f'{MODEL_PATH}/best_model_{id_model}/'
 
     best_model = mlflow.sklearn.load_model(best_model_path)
@@ -80,7 +80,7 @@ def main():
     plt.xlabel("Probabilidade Média Prevista")
     plt.legend()
     plt.title("Curva de Confiabilidade")
-    plt.savefig(f"{calibrated_model_path}/confusion_matrix_calibrated.png")
+    plt.savefig(f"{calibrated_model_path}/curva_confiabilidade.png")
     plt.close()
 
 if __name__ == "__main__":
