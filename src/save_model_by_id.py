@@ -14,7 +14,7 @@ def main():
     
     try:
         
-        save_model_by_id(run_id = 'a95b34f284ba4e1586210f51f4e59434', save_dir = MODEL_PATH)
+        save_model_by_id(run_id = '...', save_dir = MODEL_PATH)
         
     except:
         
