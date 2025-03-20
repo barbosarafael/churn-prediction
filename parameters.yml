@@ -3,6 +3,8 @@ data:
   test_size: 0.2
   random_state: 42
   processed_path: 'data/processed/'
+images:
+  output_path: 'images/'
 mlflow:
   tracking_uri: 'mlruns'
   experiment_name: 'Churn Prediction Experiment v99'

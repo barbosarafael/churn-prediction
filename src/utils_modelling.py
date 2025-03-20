@@ -288,3 +288,17 @@ def load_and_save_best_model(experiment_name, metric_name, save_dir):
             json.dump(metadata, f, indent=4)
             
     return best_model, best_run
+
+
+def save_model_by_id(run_id, save_dir):
+    
+    os.makedirs(save_dir, exist_ok = True)
+    
+    client = MlflowClient()
+    model_uri = f"runs:/{run_id}/model"
+    model = mlflow.sklearn.load_model(model_uri)
+    
+    model_path = os.path.join(save_dir, f"best_model_{run_id}")
+    mlflow.sklearn.save_model(model, model_path)
+    
+    return model

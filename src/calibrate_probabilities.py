@@ -25,6 +25,7 @@ TARGET = config['modelling']['target']
 METRIC_NAME = config['modelling']['metric_name']
 MODEL_PATH = config['modelling']['model_path']
 CALIBRATED_PATH = config['modelling']['calibrated_model_path']
+IMAGE_PATH = config['images']['output_path']
 
 # Load data
 
@@ -33,7 +34,7 @@ y_test = pd.read_csv(PROCESSED_DATA_PATH / 'y_test.csv')
 
 # Load model 
 
-id_model = '7ab7bfd0c8d54b87a3ce7d6eb2ede953'
+id_model = 'f94e15977cde4f1997b25afa376970b4'
 best_model_path = f'{MODEL_PATH}/best_model_{id_model}/'
 
 best_model = mlflow.sklearn.load_model(best_model_path)
@@ -41,14 +42,12 @@ best_model = mlflow.sklearn.load_model(best_model_path)
 # Aplicar o pré-processamento aos dados de validação
 
 X_test_transformed = best_model.named_steps['preprocessor'].transform(X_test)
-print("Pré-processamento aplicado aos dados de validação.")
-print(X_test_transformed)
 
 # Calibrar o modelo
 
 best_model_class = best_model.named_steps['classifier']
 
-calibrated_model = CalibratedClassifierCV(best_model_class, method='sigmoid', cv='prefit')
+calibrated_model = CalibratedClassifierCV(best_model_class, method = 'sigmoid')
 calibrated_model.fit(X_test_transformed, y_test)
 
 # Prever probabilidades calibradas
@@ -65,9 +64,9 @@ plt.ylabel("Fração de Positivos")
 plt.xlabel("Probabilidade Média Prevista")
 plt.legend()
 plt.title("Curva de Confiabilidade")
-plt.savefig(f"confusion_matrix_calibrated.png")
+plt.savefig(f"{IMAGE_PATH}/confusion_matrix_calibrated.png")
 plt.close()
-print("Curva de confiabilidade salva como 'confusion_matrix_calibrated.png'.")
+
 
 # Calcular o Brier Score
 brier_score = brier_score_loss(y_test, y_pred_proba_calibrated)
