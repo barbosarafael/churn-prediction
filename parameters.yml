@@ -7,7 +7,7 @@ images:
   output_path: 'images/'
 mlflow:
   tracking_uri: 'mlruns'
-  experiment_name: 'Churn Prediction Experiment v99'
+  experiment_name: 'Churn Prediction Experiment v98'
 modelling:
   n_iter: 50
   features:

@@ -4,7 +4,6 @@ import os
 import json
 import numpy as np
 from sklearn.utils import class_weight
-from sklearn.metrics import confusion_matrix, auc, roc_curve, precision_recall_curve
 import matplotlib.pyplot as plt
 import seaborn as sns
 import mlflow
@@ -19,7 +18,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split, ParameterSampler
-from sklearn.metrics import roc_auc_score, confusion_matrix, f1_score, recall_score, accuracy_score, precision_score
+from sklearn.metrics import auc, roc_auc_score, confusion_matrix, f1_score, recall_score, accuracy_score, precision_score,  roc_curve, precision_recall_curve
 from sklearn.impute import SimpleImputer
 from datetime import datetime
 
@@ -87,6 +86,7 @@ def plot_and_log_confusion_matrix(y_true, y_pred, run_name="confusion_matrix"):
     plt.ylabel('Verdadeiro')
     plt.title('Matriz de Confusão')
     temp_file = "confusion_matrix.png"
+    plt.savefig(temp_file)
     plt.close()
     mlflow.log_artifact(temp_file, artifact_path=run_name)
     
@@ -165,7 +165,7 @@ def create_preprocessing_pipeline(numerical_features, categorical_features):
 def get_models_and_param_grids(class_weights):
     return [
         {
-            'classifier': [LogisticRegression(max_iter=500)],
+            'classifier': [LogisticRegression(max_iter=1000)],
             'classifier__C': [0.01, 0.1, 1, 10, 100],
             'classifier__max_iter': [100, 200, 500],
             'classifier__class_weight': ['balanced', None, class_weights, {0: 1.0, 1: 2.0}, {0: 1.0, 1: 3.0}, {0: 1.0, 1: 4.0}],
@@ -218,9 +218,7 @@ def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test,
 
             # Avalie o modelo no conjunto de treino e teste
             y_test_pred_proba = pipeline.predict_proba(X_test)[:, 1]
-            
-            optimal_threshold = find_optimal_threshold(y_test, y_test_pred_proba)
-            y_test_pred = (y_test_pred_proba >= optimal_threshold).astype(int)
+            y_test_pred = pipeline.predict(X_test)
 
             # Calcule as métricas
             test_auc = roc_auc_score(y_test, y_test_pred_proba)
@@ -238,7 +236,6 @@ def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test,
 
             # Log dos parâmetros e métricas no MLflow
             mlflow.log_params(params)
-            mlflow.log_metric("optimal_threshold", optimal_threshold)
             mlflow.log_metric("test_auc", test_auc)
             mlflow.log_metric("test_recall", test_recall)
             mlflow.log_metric("test_precision", test_precision)
@@ -307,6 +304,8 @@ def save_model_by_id(run_id, save_dir):
         
         model_path = os.path.join(save_dir, f"best_model_{run_id}")
         mlflow.sklearn.save_model(model, model_path)
+        
+        print(f'Modelo salvo em: {model_path}')
         
     except mlflow.MlflowException as e:
         if "MODEL NOT FOUND" in str(e):
