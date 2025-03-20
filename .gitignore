@@ -177,6 +177,15 @@ data/
 # MLFlow runs
 
 mlruns/
+
+# Models
+
 models/*/
 models/*
 !models/placeholder
+
+# Calibrated models
+
+calibrated_models/*/
+calibrated_models/*
+!calibrated_models/placeholder

@@ -25,52 +25,63 @@ TARGET = config['modelling']['target']
 METRIC_NAME = config['modelling']['metric_name']
 MODEL_PATH = config['modelling']['model_path']
 CALIBRATED_PATH = config['modelling']['calibrated_model_path']
-IMAGE_PATH = config['images']['output_path']
 
-# Load data
+def main():
 
-X_test = pd.read_csv(PROCESSED_DATA_PATH / 'X_test.csv')
-y_test = pd.read_csv(PROCESSED_DATA_PATH / 'y_test.csv')
+    # Load data
 
-# Load model 
+    X_test = pd.read_csv(PROCESSED_DATA_PATH / 'X_test.csv')
+    y_test = pd.read_csv(PROCESSED_DATA_PATH / 'y_test.csv')
+    y_test = np.ravel(y_test)
 
-id_model = 'f94e15977cde4f1997b25afa376970b4'
-best_model_path = f'{MODEL_PATH}/best_model_{id_model}/'
+    # Load model 
 
-best_model = mlflow.sklearn.load_model(best_model_path)
+    id_model = 'f94e15977cde4f1997b25afa376970b4'
+    best_model_path = f'{MODEL_PATH}/best_model_{id_model}/'
 
-# Aplicar o pré-processamento aos dados de validação
+    best_model = mlflow.sklearn.load_model(best_model_path)
 
-X_test_transformed = best_model.named_steps['preprocessor'].transform(X_test)
+    # Aplicar o pré-processamento aos dados de validação
 
-# Calibrar o modelo
+    X_test_transformed = best_model.named_steps['preprocessor'].transform(X_test)
 
-best_model_class = best_model.named_steps['classifier']
+    # Calibrar o modelo
 
-calibrated_model = CalibratedClassifierCV(best_model_class, method = 'sigmoid')
-calibrated_model.fit(X_test_transformed, y_test)
+    best_model_class = best_model.named_steps['classifier']
 
-# Prever probabilidades calibradas
+    calibrated_model = CalibratedClassifierCV(best_model_class, method = 'sigmoid')
+    calibrated_model.fit(X_test_transformed, y_test)
 
-y_pred_proba_calibrated = calibrated_model.predict_proba(X_test_transformed)[:, 1]
+    # Prever probabilidades calibradas
 
-# Avaliar a calibragem com a Curva de Confiabilidade
-fraction_of_positives, mean_predicted_value = calibration_curve(y_test, y_pred_proba_calibrated, n_bins=10)
+    y_pred_proba_calibrated = calibrated_model.predict_proba(X_test_transformed)[:, 1]
 
-# Plotar a Curva de Confiabilidade
-plt.plot(mean_predicted_value, fraction_of_positives, "s-", label="Calibrado")
-plt.plot([0, 1], [0, 1], "k:", label="Perfeitamente Calibrado")
-plt.ylabel("Fração de Positivos")
-plt.xlabel("Probabilidade Média Prevista")
-plt.legend()
-plt.title("Curva de Confiabilidade")
-plt.savefig(f"{IMAGE_PATH}/confusion_matrix_calibrated.png")
-plt.close()
+    # Calcular o Brier Score
+    brier_score = brier_score_loss(y_test, y_pred_proba_calibrated)
+    print(f"Brier Score após calibração: {brier_score}")
+    
+    # Avaliar a calibragem com a Curva de Confiabilidade
+    fraction_of_positives, mean_predicted_value = calibration_curve(y_test, y_pred_proba_calibrated, n_bins=10)
+    
+    # Create folder to save files
+    
+    calibrated_model_path = f'{CALIBRATED_PATH}/calibrated_model_{id_model}'
+    
+    os.makedirs(calibrated_model_path, exist_ok = True)
 
+    # Salvar o modelo calibrado em uma nova pasta 
 
-# Calcular o Brier Score
-brier_score = brier_score_loss(y_test, y_pred_proba_calibrated)
-print(f"Brier Score após calibração: {brier_score}")
+    mlflow.sklearn.save_model(calibrated_model, calibrated_model_path)
+    
+    # Plotar a Curva de Confiabilidade
+    plt.plot(mean_predicted_value, fraction_of_positives, "s-", label="Calibrado")
+    plt.plot([0, 1], [0, 1], "k:", label="Perfeitamente Calibrado")
+    plt.ylabel("Fração de Positivos")
+    plt.xlabel("Probabilidade Média Prevista")
+    plt.legend()
+    plt.title("Curva de Confiabilidade")
+    plt.savefig(f"{calibrated_model_path}/confusion_matrix_calibrated.png")
+    plt.close()
 
-# Salvar o modelo calibrado em uma nova pasta 
-# Melhorar o nome da pasta 
+if __name__ == "__main__":
+    main()
