@@ -59,13 +59,25 @@ To train the models, run the script `python src/train.py`. You will see the mode
 
 ![alt text](images/image.png)
 
+## 6. Model calibration
+
+Our probabilities need to be reliable. For example, we need to guarantee that a customer has an X% probability to churn. To do this, we need to calibrate our model. I made a very basic approach to calibrate our model.
+
+1. Open the script `src/calibrate_probabilties.py` 
+2. Change id variable to the id of the model you want to calibrate
+3. Run the script `python src/calibrate_probabilties.py` 
+4. The results are the following:
+   1. A new folder with **calibrated_models**: you can find the model's metadata and the calibration curve
+   2. Brier score for each model
+  
+
 ## TODOs
 
 - [x] "Data exploration"
 - [x] Feature engineering
 - [x] Model training
 - [x] Model evaluation
-- [ ] Model calibration
+- [x] Model calibration
 - [ ] Translate 100% to english
 - [ ] Documentation all functions
 - [ ] Model deployment -> API + Docker + AWS
