@@ -292,13 +292,26 @@ def load_and_save_best_model(experiment_name, metric_name, save_dir):
 
 def save_model_by_id(run_id, save_dir):
     
-    os.makedirs(save_dir, exist_ok = True)
+    if not isinstance(run_id, str):
+        raise TypeError("run_id deve ser uma string")
     
-    client = MlflowClient()
-    model_uri = f"runs:/{run_id}/model"
-    model = mlflow.sklearn.load_model(model_uri)
+    if not isinstance(save_dir, str):
+        raise TypeError("save_dir deve ser uma string")
     
-    model_path = os.path.join(save_dir, f"best_model_{run_id}")
-    mlflow.sklearn.save_model(model, model_path)
+    os.makedirs(save_dir, exist_ok=True)
+    
+    try:
+        client = MlflowClient()
+        model_uri = f"runs:/{run_id}/model"
+        model = mlflow.sklearn.load_model(model_uri)
+        
+        model_path = os.path.join(save_dir, f"best_model_{run_id}")
+        mlflow.sklearn.save_model(model, model_path)
+        
+    except mlflow.MlflowException as e:
+        if "MODEL NOT FOUND" in str(e):
+            print("Modelo não encontrado")
+        else:
+            raise
     
     return model
