@@ -9,7 +9,7 @@ def split_data_frame(
     output_directory: str = 'data/processed/'
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Divide the input DataFrame into a training set and a test set.
+    Splits the input DataFrame into a training set and a test set.
 
     Args:
         data_frame: The DataFrame to be split.

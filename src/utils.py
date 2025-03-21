@@ -6,10 +6,10 @@ import os
 def load_kaggle_credentials():
     
     """
-    Carrega as credenciais do Kaggle da variável de ambiente local.
+    Loads Kaggle credentials from local environment variable.
     
-    Essa função carrega as credenciais do Kaggle armazenadas em um arquivo .env
-    na pasta raiz do projeto. As credenciais s o necess rias para acessar a API do Kaggle.
+    This function loads Kaggle credentials stored in a .env file in the project's root directory.
+    The credentials are necessary to access the Kaggle API.
     """
     
     load_dotenv()

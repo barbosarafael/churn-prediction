@@ -18,57 +18,57 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split, ParameterSampler
-from sklearn.metrics import auc, roc_auc_score, confusion_matrix, f1_score, recall_score, accuracy_score, precision_score,  roc_curve, precision_recall_curve
+from sklearn.metrics import auc, roc_auc_score, confusion_matrix, f1_score, recall_score, accuracy_score, precision_score, roc_curve, precision_recall_curve
 from sklearn.impute import SimpleImputer
 from datetime import datetime
 
 
-def calculate_class_weights(y_treino):
+def calculate_class_weights(y_train):
     """
-    Calcula os pesos das classes com base na distribuição dos rótulos.
+    Calculates class weights based on label distribution.
 
-    Parâmetros:
-    y_treino (array-like): Rótulos do conjunto de treino.
+    Parameters:
+    y_train (array-like): Training set labels.
 
-    Retorna:
-    dict: Dicionário onde as chaves são os índices das classes e os valores são os pesos correspondentes.
+    Returns:
+    dict: Dictionary where keys are class indices and values are the corresponding weights.
     """
-    # Calcula os pesos das classes
+    # Calculate class weights
     class_weights = class_weight.compute_class_weight(
-        class_weight='balanced',  # Estratégia de balanceamento
-        classes=np.unique(y_treino),  # Classes únicas no conjunto de dados
-        y=y_treino  # Rótulos do conjunto de treino
+        class_weight='balanced',  # Balancing strategy
+        classes=np.unique(y_train),  # Unique classes in the dataset
+        y=y_train  # Training set labels
     )
 
-    # Converte os pesos para um dicionário
+    # Convert weights to a dictionary
     class_weight_dict = {i: weight for i, weight in enumerate(class_weights)}
 
     return class_weight_dict
 
-def calcular_ks_score(y_true, y_pred_proba):
+def calculate_ks_score(y_true, y_pred_proba):
     """
-    Calcula o KS score.
+    Calculates the KS score.
 
-    Parâmetros:
-    y_true (array-like): Rótulos verdadeiros.
-    y_pred_proba (array-like): Probabilidades previstas da classe positiva.
+    Parameters:
+    y_true (array-like): True labels.
+    y_pred_proba (array-like): Predicted probabilities of the positive class.
 
-    Retorna:
+    Returns:
     float: KS score.
     """
     fpr, tpr, thresholds = roc_curve(y_true, y_pred_proba)
     ks_score = np.max(tpr - fpr)
     return ks_score
 
-def calcular_auc_pr(y_true, y_pred_proba):
+def calculate_auc_pr(y_true, y_pred_proba):
     """
-    Calcula a AUC-PR (Area Under the Precision-Recall Curve).
+    Calculates the AUC-PR (Area Under the Precision-Recall Curve).
 
-    Parâmetros:
-    y_true (array-like): Rótulos verdadeiros.
-    y_pred_proba (array-like): Probabilidades previstas da classe positiva.
+    Parameters:
+    y_true (array-like): True labels.
+    y_pred_proba (array-like): Predicted probabilities of the positive class.
 
-    Retorna:
+    Returns:
     float: AUC-PR.
     """
     precision, recall, _ = precision_recall_curve(y_true, y_pred_proba)
@@ -77,14 +77,14 @@ def calcular_auc_pr(y_true, y_pred_proba):
 
 def plot_and_log_confusion_matrix(y_true, y_pred, run_name="confusion_matrix"):
     """
-    Gera e salva a matriz de confusão como uma imagem no MLflow.
+    Generates and saves the confusion matrix as an image in MLflow.
     """
     cm = confusion_matrix(y_true, y_pred)
     plt.figure(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
-    plt.xlabel('Predito')
-    plt.ylabel('Verdadeiro')
-    plt.title('Matriz de Confusão')
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.title('Confusion Matrix')
     temp_file = "confusion_matrix.png"
     plt.savefig(temp_file)
     plt.close()
@@ -200,33 +200,33 @@ def get_models_and_param_grids(class_weights):
     
 def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test, y_test, n_iter):
     model_name = param_grid['classifier'][0].__class__.__name__
-    print(f"\nExecutando Random Search para o modelo: {model_name}")
+    print(f"\nRunning Random Search for model: {model_name}")
 
-    # Gere combinações de parâmetros usando ParameterSampler
+    # Generate parameter combinations using ParameterSampler
     param_sampler = ParameterSampler(param_grid, n_iter=n_iter, random_state=42)
 
-    # Itere sobre cada combinação de parâmetros
+    # Iterate over each parameter combination
     for i, params in enumerate(param_sampler):
         with mlflow.start_run():
-            print(f"Combinação {i + 1}/{n_iter} para {model_name}")
+            print(f"Combination {i + 1}/{n_iter} for {model_name}")
 
-            # Defina os parâmetros no pipeline
+            # Set parameters in the pipeline
             pipeline.set_params(**params)
 
-            # Treine o modelo
+            # Train the model
             pipeline.fit(X_train, y_train)
 
-            # Avalie o modelo no conjunto de treino e teste
+            # Evaluate the model on the training and testing set
             y_test_pred_proba = pipeline.predict_proba(X_test)[:, 1]
             y_test_pred = pipeline.predict(X_test)
 
-            # Calcule as métricas
+            # Calculate metrics
             test_auc = roc_auc_score(y_test, y_test_pred_proba)
             test_recall = recall_score(y_test, y_test_pred)
             test_precision = precision_score(y_test, y_test_pred)
             test_f1 = f1_score(y_test, y_test_pred)
-            test_ks = calcular_ks_score(y_test, y_test_pred_proba)
-            test_auc_pr = calcular_auc_pr(y_test, y_test_pred_proba)
+            test_ks = calculate_ks_score(y_test, y_test_pred_proba)
+            test_auc_pr = calculate_auc_pr(y_test, y_test_pred_proba)
             test_accuracy = accuracy_score(y_test, y_test_pred)
             
             cm = confusion_matrix(y_test, y_test_pred)
@@ -234,7 +234,7 @@ def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test,
             
             plot_and_log_confusion_matrix(y_test, y_test_pred)
 
-            # Log dos parâmetros e métricas no MLflow
+            # Log parameters and metrics in MLflow
             mlflow.log_params(params)
             mlflow.log_metric("test_auc", test_auc)
             mlflow.log_metric("test_recall", test_recall)
@@ -248,7 +248,7 @@ def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test,
             mlflow.log_metric("false_negatives", fn)
             mlflow.log_metric("true_positives", tp)
 
-            # Salve o modelo (opcional)
+            # Save the model (optional)
             mlflow.sklearn.log_model(pipeline, "model")
             
 def load_and_save_best_model(experiment_name, metric_name, save_dir):
@@ -261,16 +261,16 @@ def load_and_save_best_model(experiment_name, metric_name, save_dir):
     best_run = runs[0]
     best_model = mlflow.sklearn.load_model(f"runs:/{best_run.info.run_id}/model")
     
-    print(f"\nMelhor modelo: {best_model.named_steps['classifier']}")
-    print(f"\nEncoders das variáveis numéricas: {best_model.named_steps['preprocessor'].named_transformers_['num']}")
-    print(f"\nEncoders das variáveis categóricas: {best_model.named_steps['preprocessor'].named_transformers_['cat'].__class__.__name__}")
-    print(f"\nMétricas da melhor run: {best_run.data.metrics}\n")
+    print(f"\nBest model: {best_model.named_steps['classifier']}")
+    print(f"\nEncoders for numerical variables: {best_model.named_steps['preprocessor'].named_transformers_['num']}")
+    print(f"\nEncoders for categorical variables: {best_model.named_steps['preprocessor'].named_transformers_['cat'].__class__.__name__}")
+    print(f"\nMetrics of the best run: {best_run.data.metrics}\n")
     
-    # Salva o modelo em disco
+    # Save the model to disk
     model_path = os.path.join(save_dir, f"best_model_{best_run.info.run_id}")
     mlflow.sklearn.save_model(best_model, model_path)
 
-    # Salva metadados da execução
+    # Save execution metadata
     metadata = {
         "run_id": best_run.info.run_id,
         "experiment_name": experiment_name,

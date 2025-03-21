@@ -31,9 +31,9 @@ def download_kaggle_dataset(dataset: str = 'blastchar/telco-customer-churn', dow
     
     # 3. Download dataset 
     
-    print(f'Baixando dataset: {dataset}...')
+    print(f'Downloading dataset: {dataset}...')
     api.dataset_download_files(dataset, path = download_path, unzip = True)
-    print(f'Download concluído! Arquivos salvos em: {download_path}')
+    print(f'Download complete! Files saved in: {download_path}')
     
 if __name__ == '__main__':
     

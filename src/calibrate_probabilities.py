@@ -9,7 +9,8 @@ from sklearn.metrics import brier_score_loss
 import pandas as pd
 import mlflow
 
-# Carregar configurações
+# Load configurations
+
 with open('parameters.yml', 'r') as f:
     config = yaml.safe_load(f)
 
@@ -36,33 +37,33 @@ def main():
 
     # Load model 
 
-    id_model = ''
+    id_model = 'cdeb67983fb547a398617fe30b3c58ce'
     best_model_path = f'{MODEL_PATH}/best_model_{id_model}/'
 
     best_model = mlflow.sklearn.load_model(best_model_path)
 
-    # Aplicar o pré-processamento aos dados de validação
+    # Apply preprocessing to validation data
 
     X_test_transformed = best_model.named_steps['preprocessor'].transform(X_test)
 
-    # Calibrar o modelo
+    # Calibrate model
 
     best_model_class = best_model.named_steps['classifier']
 
     calibrated_model = CalibratedClassifierCV(best_model_class, method = 'sigmoid')
     calibrated_model.fit(X_test_transformed, y_test)
 
-    # Prever probabilidades calibradas
+    # Predict calibrated probabilities
 
     y_pred_proba_calibrated = calibrated_model.predict_proba(X_test_transformed)[:, 1]
     
     optimal_threshold = find_optimal_threshold(y_test, y_pred_proba_calibrated)
 
-    # Calcular o Brier Score
+    # Calculate Brier Score
     brier_score = brier_score_loss(y_test, y_pred_proba_calibrated)
-    print(f"Brier Score após calibração: {brier_score}")
+    print(f"Brier Score after calibration: {brier_score}")
     
-    # Avaliar a calibragem com a Curva de Confiabilidade
+    # Evaluate calibration with the Reliability Curve
     fraction_of_positives, mean_predicted_value = calibration_curve(y_test, y_pred_proba_calibrated, n_bins=10)
     
     # Create folder to save files
@@ -71,18 +72,18 @@ def main():
     
     os.makedirs(calibrated_model_path, exist_ok = True)
 
-    # Salvar o modelo calibrado em uma nova pasta 
+    # Save the calibrated model in a new folder 
 
     mlflow.sklearn.save_model(calibrated_model, calibrated_model_path)
     
-    # Plotar a Curva de Confiabilidade
-    plt.plot(mean_predicted_value, fraction_of_positives, "s-", label="Calibrado")
-    plt.plot([0, 1], [0, 1], "k:", label="Perfeitamente Calibrado")
-    plt.ylabel("Fração de Positivos")
-    plt.xlabel("Probabilidade Média Prevista")
+    # Plot the Reliability Curve
+    plt.plot(mean_predicted_value, fraction_of_positives, "s-", label="Calibrated")
+    plt.plot([0, 1], [0, 1], "k:", label="Perfectly Calibrated")
+    plt.ylabel("Fraction of Positives")
+    plt.xlabel("Mean Predicted Probability")
     plt.legend()
-    plt.title("Curva de Confiabilidade")
-    plt.savefig(f"{calibrated_model_path}/curva_confiabilidade.png")
+    plt.title("Reliability Curve")
+    plt.savefig(f"{calibrated_model_path}/reliability_curve.png")
     plt.close()
     
     # Save the optimal threshold

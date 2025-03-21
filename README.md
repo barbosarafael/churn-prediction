@@ -17,7 +17,7 @@ This [Kaggle](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) Cu
 
 ### 2. Split train and test data
 
-Run the script `python src/data_split.py`
+Run the script `python src/split_train_test_data.py`
 
 ### 3. Exploratory Data Analysis (if needed)
 
@@ -38,7 +38,6 @@ In MLFlow we will track others metrics:
   - True negatives
   - False negatives
 - Accuracy
-- Optimal threshold -> This is not a metric but we can monitoring
 
 In training, I use RandomSearch to find the best parameters for each model. By default, I'm using 20 iterations per model. If you want to change the number of iterations, you can change the `n_iter` parameter in the `parameters.yml`.
 
@@ -49,7 +48,6 @@ In `src/utils_modelling.py` you can find the functions and change the parameters
 
 To train the models, run the script `python src/train.py`. You will see the models running like "**Combinação 19/20 para XGBClassifier**"
 - The best model will be saved in the `models/` directory
-
 
 ### 5. Model evaluation 
 
@@ -69,6 +67,7 @@ Our probabilities need to be reliable. For example, we need to guarantee that a 
 4. The results are the following:
    1. A new folder with **calibrated_models**: you can find the model's metadata and the calibration curve
    2. Brier score for each model
+   3. A metadata containing the optimal threshold for each model
   
 
 ## TODOs
@@ -78,7 +77,7 @@ Our probabilities need to be reliable. For example, we need to guarantee that a 
 - [x] Model training
 - [x] Model evaluation
 - [x] Model calibration
-- [ ] Translate 100% to english
+- [x] Translate 100% to english
 - [ ] Documentation all functions
 - [ ] Model deployment -> API + Docker + AWS
 - [ ] Model monitoring

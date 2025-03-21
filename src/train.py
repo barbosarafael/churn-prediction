@@ -5,7 +5,7 @@ from utils_modelling import *
 import yaml
 from pathlib import Path
 
-# Carregar configurações
+# Load configurations
 with open('parameters.yml', 'r') as f:
     config = yaml.safe_load(f)
 
@@ -21,23 +21,27 @@ TARGET = config['modelling']['target']
 METRIC_NAME = config['modelling']['metric_name']
 MODEL_PATH = config['modelling']['model_path']
 
-# Função principal
+# Main function
 def main():
     
-    # Carregar e limpar dados
+    # Load and clean data
+    
     df = load_and_clean_data(DATA_PATH)
     
-    # Selecionar features e target
+    # Select features and target
+    
     X, y = select_features_and_target(df, FEATURES, TARGET)
     
-    # Dividir e salvar dados
+    # Split and save data
+    
     X_train, X_test, y_train, y_test = split_and_save_data(PROCESSED_DATA_PATH, X, y, TEST_SIZE, RANDOM_STATE)
     
-    # Configurar MLflow
+    # Configure MLflow
+    
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     mlflow.set_experiment(EXPERIMENT_NAME)
     
-    # Criar pipeline e executar Random Search
+    # Create pipeline and execute Random Search
     numerical_features = X_train.select_dtypes(include='number').columns.tolist()
     categorical_features = X_train.select_dtypes(include='object').columns.tolist()
     preprocessor = create_preprocessing_pipeline(numerical_features, categorical_features)
