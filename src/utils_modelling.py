@@ -92,6 +92,16 @@ def plot_and_log_confusion_matrix(y_true, y_pred, run_name="confusion_matrix"):
     
 def find_optimal_threshold(y_true, y_pred_proba):
     
+    """
+    Finds the optimal threshold for the model based on the maximum F1 score.
+
+    Parameters:
+    y_true (array-like): True labels.
+    y_pred_proba (array-like): Predicted probabilities of the positive class.
+
+    Returns:
+    float: Optimal threshold.
+    """
     precision, recall, thresholds = precision_recall_curve(y_true, y_pred_proba)
     f1_scores = 2 * (precision * recall) / (precision + recall)
     optimal_threshold = thresholds[np.argmax(f1_scores)]
@@ -99,11 +109,41 @@ def find_optimal_threshold(y_true, y_pred_proba):
 
 # Select features and target
 def select_features_and_target(df, features, target):
+    """
+    Selects features and target from a given dataframe.
+
+    Parameters:
+    df (pd.DataFrame): Input dataframe.
+    features (list): List of feature names.
+    target (str): Target variable name.
+
+    Returns:
+    X (pd.DataFrame): Features dataframe.
+    y (pd.Series): Target variable series.
+    """
+    
     X = df[features]
     y = df[target]
     return X, y
 
 def split_and_save_data(data_path, X, y, test_size=0.2, random_state=42):
+    
+    """
+    Splits the data into training and testing sets and saves the sets to CSV files in the given data path.
+
+    Parameters:
+    data_path (str): Path to the directory where the CSV files will be saved.
+    X (pd.DataFrame): Features dataframe.
+    y (pd.Series): Target variable series.
+    test_size (float): Proportion of the dataset to include in the test set. Defaults to 0.2.
+    random_state (int): Seed used to shuffle the data. Defaults to 42.
+
+    Returns:
+    X_train (pd.DataFrame): Training features dataframe.
+    X_test (pd.DataFrame): Testing features dataframe.
+    y_train (pd.Series): Training target variable series.
+    y_test (pd.Series): Testing target variable series.
+    """
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
     
@@ -115,6 +155,36 @@ def split_and_save_data(data_path, X, y, test_size=0.2, random_state=42):
 
 # Define encoders
 def get_encoders():
+    
+    """
+    Returns dictionaries of numerical and categorical encoders for data preprocessing.
+
+    The numerical encoders include:
+        - 'standard_scaler': StandardScaler
+        - 'minmax_scaler': MinMaxScaler
+        - 'robust_scaler': RobustScaler
+
+    The categorical encoders include:
+        - 'target': TargetEncoder
+        - 'count': CountEncoder
+        - 'binary': BinaryEncoder
+        - 'basen': BaseNEncoder (base=3)
+        - 'catboost': CatBoostEncoder
+        - 'helmert': HelmertEncoder
+        - 'sum': SumEncoder
+        - 'polynomial': PolynomialEncoder
+        - 'backward_difference': BackwardDifferenceEncoder
+        - 'james_stein': JamesSteinEncoder
+        - 'woe': WOEEncoder
+        - 'leave_one_out': LeaveOneOutEncoder
+        - 'm_estimate': MEstimateEncoder
+        - 'onehot': OneHotEncoder with handle_unknown='ignore'
+        - 'ordinal': OrdinalEncoder
+
+    Returns:
+        tuple: A tuple containing two dictionaries: numerical_encoders and categorical_encoders.
+    """
+
     numerical_encoders = {
         'standard_scaler': StandardScaler(),
         'minmax_scaler': MinMaxScaler(),
@@ -143,6 +213,27 @@ def get_encoders():
 
 # Create preprocessing pipeline
 def create_preprocessing_pipeline(numerical_features, categorical_features):
+    """
+    Creates a preprocessing pipeline.
+
+    The preprocessing pipeline consists of two transformers: a numerical transformer and a categorical transformer.
+    The numerical transformer imputes missing values using the median, and scales the data using the StandardScaler.
+    The categorical transformer imputes missing values with the string 'unknown', and one-hot encodes the data.
+    The transformers are combined using the ColumnTransformer.
+
+    Parameters
+    ----------
+    numerical_features : list
+        A list of numerical feature names
+    categorical_features : list
+        A list of categorical feature names
+
+    Returns
+    -------
+    ColumnTransformer
+        The preprocessing pipeline
+    """
+    
     numerical_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='median')),
         ('scaler', StandardScaler())
@@ -163,6 +254,20 @@ def create_preprocessing_pipeline(numerical_features, categorical_features):
 
 
 def get_models_and_param_grids(class_weights):
+    """
+    Returns a list of dictionaries containing the models and their hyperparameters for tuning.
+    
+    Parameters
+    ----------
+    class_weights : dict
+        A dictionary with the class weights for the classifier.
+    
+    Returns
+    -------
+    list
+        A list of dictionaries containing the models and their hyperparameters for tuning.
+    """
+    
     return [
         {
             'classifier': [LogisticRegression(max_iter=1000)],
@@ -199,6 +304,31 @@ def get_models_and_param_grids(class_weights):
     ]
     
 def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test, y_test, n_iter):
+    """
+    Runs a random search for a given pipeline and parameter grid, and logs the parameters and metrics in MLflow.
+
+    Parameters
+    ----------
+    pipeline : Pipeline
+        The pipeline to use for the random search
+    param_grid : dict
+        The parameter grid to use for the random search
+    X_train : array-like
+        The training data
+    y_train : array-like
+        The target values for the training data
+    X_test : array-like
+        The testing data
+    y_test : array-like
+        The target values for the testing data
+    n_iter : int
+        The number of iterations for the random search
+
+    Returns
+    -------
+    None
+    """
+    
     model_name = param_grid['classifier'][0].__class__.__name__
     print(f"\nRunning Random Search for model: {model_name}")
 
@@ -253,6 +383,26 @@ def run_and_log_all_combinations(pipeline, param_grid, X_train, y_train, X_test,
             
 def load_and_save_best_model(experiment_name, metric_name, save_dir):
     
+    """
+    Loads the best model based on the given metric from the given experiment and saves it to disk.
+    
+    Parameters
+    ----------
+    experiment_name : str
+        The name of the experiment from which to load the best model
+    metric_name : str
+        The name of the metric to use for selecting the best model
+    save_dir : str
+        The directory to which to save the best model
+    
+    Returns
+    -------
+    best_model : Pipeline
+        The best model
+    best_run : Run
+        The Run object for the best model
+    """
+    
     os.makedirs(save_dir, exist_ok=True)
 
     client = MlflowClient()
@@ -288,6 +438,22 @@ def load_and_save_best_model(experiment_name, metric_name, save_dir):
 
 
 def save_model_by_id(run_id, save_dir):
+    
+    """
+    Salva um modelo em um diret rio local com base em seu run_id.
+
+    Parameters
+    ----------
+    run_id : str
+        O run_id do modelo a ser salvo
+    save_dir : str
+        O diret rio onde o modelo ser  salvo
+
+    Returns
+    -------
+    model : object
+        O objeto do modelo salvo
+    """
     
     if not isinstance(run_id, str):
         raise TypeError("run_id deve ser uma string")

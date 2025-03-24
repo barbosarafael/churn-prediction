@@ -37,7 +37,7 @@ def main():
 
     # Load model 
 
-    id_model = 'cdeb67983fb547a398617fe30b3c58ce'
+    id_model = '...'
     best_model_path = f'{MODEL_PATH}/best_model_{id_model}/'
 
     best_model = mlflow.sklearn.load_model(best_model_path)
