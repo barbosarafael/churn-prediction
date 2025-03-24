@@ -69,7 +69,6 @@ Our probabilities need to be reliable. For example, we need to guarantee that a 
    2. Brier score for each model
    3. A metadata containing the optimal threshold for each model
   
-
 ## TODOs
 
 - [x] "Data exploration"
@@ -78,7 +77,7 @@ Our probabilities need to be reliable. For example, we need to guarantee that a 
 - [x] Model evaluation
 - [x] Model calibration
 - [x] Translate 100% to english
-- [ ] Documentation all functions
+- [x] Documentation all functions
 - [ ] Model deployment -> API + Docker + AWS
 - [ ] Model monitoring
 - [ ] Deployment monitoring
