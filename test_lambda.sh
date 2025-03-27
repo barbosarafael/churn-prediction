@@ -1,9 +1,21 @@
 #!/bin/bash
 
 # Configurações
-MODEL_ID="2760004acc144318a4b77283a23bc827"
+MODEL_ID="cdeb67983fb547a398617fe30b3c58ce"
 PORT=9000
 CONTAINER_NAME="churn-prediction-test"
+
+# Função para verificar porta
+check_port() {
+    if lsof -i :${PORT} > /dev/null; then
+        echo "ERRO: A porta ${PORT} já está em uso. Processos:"
+        lsof -i :${PORT}
+        echo "Soluções:"
+        echo "1) Execute 'kill -9 <PID>' para terminar o processo"
+        echo "2) Mude a variável PORT no script"
+        exit 1
+    fi
+}
 
 # 1. Verifica se o usuário tem permissão
 if ! groups | grep -q '\bdocker\b'; then
@@ -14,6 +26,9 @@ if ! groups | grep -q '\bdocker\b'; then
     exit 1
 fi
 
+# Verifica se a porta está disponível
+check_port
+
 # 2. Constrói a imagem Docker
 docker build -t churn-prediction-lambda --build-arg MODEL_ID=${MODEL_ID} . || {
     echo "ERRO ao construir a imagem Docker";
@@ -21,11 +36,15 @@ docker build -t churn-prediction-lambda --build-arg MODEL_ID=${MODEL_ID} . || {
 }
 
 # 3. Remove container existente (se houver)
-docker rm -f ${CONTAINER_NAME} 2>/dev/null
+docker rm -f ${CONTAINER_NAME} 2>/dev/null || true
 
 # 4. Inicia o container
 docker run -d -p ${PORT}:8080 --name ${CONTAINER_NAME} churn-prediction-lambda || {
     echo "ERRO ao iniciar o container";
+    echo "Se o erro for relacionado à porta, tente:"
+    echo "1) Fechar aplicações usando a porta 9000"
+    echo "2) Executar 'sudo lsof -i :9000' para identificar processos"
+    echo "3) Executar 'sudo kill -9 <PID>' para liberar a porta"
     exit 1;
 }
 
@@ -36,23 +55,25 @@ sleep 5
 # 6. Testa a API com curl
 echo "Testando a API..."
 curl -XPOST "http://localhost:${PORT}/2015-03-31/functions/function/invocations" -d '{
-    "tenure":24,
-    "MonthlyCharges":65.75,
+    "gender":"Female",
     "Partner":"Yes",
     "Dependents":"No",
-    "InternetService":"Fiber optic",
-    "OnlineSecurity":"No",
-    "OnlineBackup":"Yes",
-    "DeviceProtection":"No",
-    "TechSupport":"No",
-    "StreamingTV":"Yes",
-    "StreamingMovies":"Yes",
-    "Contract":"Two year",
-    "PaymentMethod":"Credit card (automatic)",
-    "QtdProducts":3
+    "tenure":24,
+    "InternetService":"No",
+    "OnlineSecurity":"No internet service",
+    "OnlineBackup":"No internet service",
+    "DeviceProtection":"No internet service",
+    "TechSupport":"No internet service",
+    "StreamingTV":"No internet service",
+    "StreamingMovies":"No internet service",
+    "Contract":"Month-to-month",
+    "PaymentMethod":"Mailed check",
+    "MonthlyCharges":65.75,
+    "TotalCharges":137.6,
+    "QtdProducts":0
 }'
 
 # 7. Limpeza
 echo "Parando o container..."
-docker stop ${CONTAINER_NAME} 2>/dev/null
-docker rm ${CONTAINER_NAME} 2>/dev/null
+docker stop ${CONTAINER_NAME} 2>/dev/null || true
+docker rm ${CONTAINER_NAME} 2>/dev/null || true
