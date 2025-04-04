@@ -4,3 +4,4 @@ xgboost==2.1.4
 pandas==2.2.3
 numpy==2.2.3
 category_encoders==2.8.0
+boto3==1.37.19

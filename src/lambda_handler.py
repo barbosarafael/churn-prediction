@@ -3,10 +3,18 @@ import joblib
 import os
 import logging
 from datetime import datetime
+import boto3
+from datetime import datetime
+import os
+import uuid
 
 # Configura logs detalhados
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+# Configura o DynamoDB
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('ChurnPredictions')  # Substitua pelo nome da sua tabela
 
 def load_artifacts():
     """Carrega modelo e pré-processador com logs de progresso."""
@@ -41,6 +49,22 @@ except Exception as e:
     logger.error(f"ERRO CRÍTICO: {str(e)}")
     raise
 
+def save_to_dynamodb(input_data, prediction, probability, model_id):
+    try:
+        item = {
+            'prediction_id': str(uuid.uuid4()),  # ID único
+            'timestamp': datetime.now().isoformat(),
+            'input_data': json.dumps(input_data),  # Salva como string JSON
+            'prediction': int(prediction),
+            'probability': float(probability),
+            'model_id': model_id
+        }
+        print(f"Salvando no DynamoDB: {item}")  # Antes do table.put_item()
+        table.put_item(Item=item)
+    except Exception as e:
+        logger.error(f"Erro ao salvar no DynamoDB: {str(e)}")
+        # Não interrompe o fluxo se falhar
+
 def lambda_handler(event, context):
     """Função principal com logs em cada etapa."""
     try:
@@ -62,6 +86,7 @@ def lambda_handler(event, context):
         try:
             logger.info("Iniciando predição...")
             prediction = model.predict(processed_data)[0]
+            prediction_proba = model.predict_proba(processed_data)[0][1]
             logger.info(f"Predição concluída: {prediction}")
         except Exception as e:
             logger.error(f"ERRO NA PREDIÇÃO: {str(e)}")
@@ -72,10 +97,21 @@ def lambda_handler(event, context):
             "statusCode": 200,
             "body": json.dumps({
                 "prediction": int(prediction),
-                "processing_time": str(datetime.now() - start_time)
+                "model_id": os.getenv("MODEL_ID", "unknown"),
+                "status": "success",
+                "probability": float(prediction_proba)
             })
         }
         logger.info(f"Resposta gerada: {response}")
+        
+        # 3. Salva no DynamoDB
+        save_to_dynamodb(
+            input_data=input_data,
+            prediction=prediction,
+            probability=prediction_proba,
+            model_id=os.getenv("MODEL_ID", "unknown")
+        )        
+        
         return response
         
     except Exception as e:
