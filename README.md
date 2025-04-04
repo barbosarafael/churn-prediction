@@ -61,15 +61,42 @@ To train the models, run the script `python src/train.py`. You will see the mode
 
 Our probabilities need to be reliable. For example, we need to guarantee that a customer has an X% probability to churn. To do this, we need to calibrate our model. I made a very basic approach to calibrate our model.
 
-1. Open the script `src/calibrate_probabilties.py` 
+1. Open the script `src/calibrate_probabilities.py` 
 2. Change id variable to the id of the model you want to calibrate
-3. Run the script `python src/calibrate_probabilties.py` 
+3. Run the script `python src/calibrate_probabilities.py` 
 4. The results are the following:
    1. A new folder with **calibrated_models**: you can find the model's metadata and the calibration curve
    2. Brier score for each model
    3. A metadata containing the optimal threshold for each model
   
-## TODOs
+## 7. Model Deployment
+
+The main goal of this project is to learn different ways to deploy a model in production, specifically by creating an API to serve predictions. I containerized the API using Docker and deployed it on AWS.
+
+I faced some challenges deploying the model with AWS Lambda and API Gateway because my requirements were too large (XGBoost was the main issue). Although Lambda has a 10GB limit, I couldn't find a feasible way to work around this constraint.
+
+To overcome this problem, I used the following AWS services:
+
+- **S3**: To store the model, preprocessor artifacts, and Dockerfile.
+- **CodeBuild**: To install dependencies and build the project.
+- **Elastic Container Registry (ECR)**: To store the Docker image.
+- **API Gateway**: To expose the API.
+- **Lambda**: To serve the API.
+- **IAM**: To manage permissions for Lambda and other services.
+- **CloudWatch**: To monitor logs.
+
+The files related to deployment are:
+
+- `src/lambda_handler.py`
+- `Dockerfile`
+
+Finally, the goal was achieved! The image below shows the API in action.
+
+![alt text](images/result.png)
+
+Since this was a study-focused project, the API is no longer available, but everything is documented for a future round 🙃
+
+## Steps
 
 - [x] "Data exploration"
 - [x] Feature engineering
@@ -78,6 +105,7 @@ Our probabilities need to be reliable. For example, we need to guarantee that a 
 - [x] Model calibration
 - [x] Translate 100% to english
 - [x] Documentation all functions
-- [ ] Model deployment -> API + Docker + AWS
-- [ ] Model monitoring
-- [ ] Deployment monitoring
+- [x] Model deployment -> API + Docker + AWS
+- [x] End project
+- [ ] ~~Model monitoring~~
+- [ ] ~~Deployment monitoring~~
